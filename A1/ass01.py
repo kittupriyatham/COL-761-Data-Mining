@@ -56,7 +56,15 @@ def minsupport():
 
 def compress(inputPath, outputPath):
     global sorted_pattern_to_index
-    df = pd.read_table(inputPath, sep="\s+", header=None)
+    df = pd.read_csv(inputPath, sep='\s+', header=None)
+    # print(df)
+    original_size = df.size
+    print(df.size)
+    # print(df.shape)
+    # rc = df.shape[0]
+    # cc = df.shape[1]
+    # if rc > cc:
+    #     df = df.transpose()
     te = TransactionEncoder()
     te_ary = te.fit(df.values.tolist()).transform(df.values.tolist())
     dfr = pd.DataFrame(te_ary, columns=te.columns_)
@@ -80,6 +88,9 @@ def compress(inputPath, outputPath):
     pool.close()
     pool.join()
     cmp_df = pd.DataFrame(compressed_lst)
+    print(cmp_df.size)
+    # print(cmp_df.shape)
+    print("compression ratio =", cmp_df.size/original_size)
     cmp_df.to_csv(outputPath, sep='\t', index=False, header=False)
     with open('sorted_pattern_to_index.pkl', 'wb') as file:
         pickle.dump(sorted_pattern_to_index, file)
