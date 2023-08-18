@@ -7,6 +7,7 @@ import multiprocessing
 import sys
 import pickle
 from typing import Final
+import time
 
 minisupport: Final = 0.6
 
@@ -55,11 +56,14 @@ def minsupport():
 
 
 def compress(inputPath, outputPath):
+    print("Compression:")
+    start = time.time()
+    print("started at", start)
     global sorted_pattern_to_index
     df = pd.read_csv(inputPath, sep='\s+', header=None)
     # print(df)
     original_size = df.size
-    print(df.size)
+    print("size of file =", df.size)
     # print(df.shape)
     # rc = df.shape[0]
     # cc = df.shape[1]
@@ -77,7 +81,7 @@ def compress(inputPath, outputPath):
     sorted_pattern_to_index = dict(sorted(pattern_to_index.items(), key=lambda item: len(item[0]), reverse=True))
     compressed_lst = []
     num_cores = multiprocessing.cpu_count()
-    print(num_cores)
+    print("number of cores =", num_cores)
     partial_process = partial(process_transaction, sorted_pattern_to_index=sorted_pattern_to_index)
 
     # Create a multiprocessing pool
@@ -87,8 +91,11 @@ def compress(inputPath, outputPath):
     compressed_lst = pool.map(partial_process, list_of_sets)
     pool.close()
     pool.join()
+    end = time.time()
+    print("Ended at", end)
+    print("time taken to compress =",end-start)
     cmp_df = pd.DataFrame(compressed_lst)
-    print(cmp_df.size)
+    print("size of compressed file =", cmp_df.size)
     # print(cmp_df.shape)
     print("compression ratio =", cmp_df.size/original_size)
     cmp_df.to_csv(outputPath, sep='\t', index=False, header=False)
