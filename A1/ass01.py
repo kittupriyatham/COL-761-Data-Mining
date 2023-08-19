@@ -9,7 +9,7 @@ import pickle
 from typing import Final
 import time
 
-minisupport: Final = 0.2
+minisupport: Final = 0.6
 # secret = "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"
 
 sorted_pattern_to_index = {}
@@ -92,16 +92,19 @@ def compress(inputPath, outputPath):
         pool.close()
         pool.join()
         tcmp += compressed_lst
-        print(tcmp)
         with open(('batchpickles/sorted_pattern_to_index'+str(fno)+'.pkl'), 'wb') as file:
             pickle.dump(sorted_pattern_to_index, file)
         fno += 1
     print("loop ended")
-    cmp_df = pd.DataFrame(tcmp)
-    end_size = cmp_df.size
+    end_size = sum([len(listElem) for listElem in tcmp])
     print("size of data after compression =", end_size)
     print("compression ratio =", ((start_size - end_size) / start_size) * 100)
-    cmp_df.to_csv(outputPath, sep='\t', index=False, header=False)
+    # print(tcmp)
+    # print(" ".join(tcmp[0]))
+    f = open(outputPath, 'a')
+    for i in range(nr):
+        f.write(" ".join(tcmp[i]))
+    f.close()
 
 
 def decompress(inputPath, outputPath):
