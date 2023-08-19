@@ -9,7 +9,7 @@ import pickle
 from typing import Final
 import time
 
-minisupport: Final = 0.6
+minisupport: Final = 0.3
 
 # secret = "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"
 
@@ -56,61 +56,80 @@ def minsupport():
 
 
 def compress(inputPath, outputPath):
-    print("Compression:")
-    start = time.time()
-    print("started at", start)
     global sorted_pattern_to_index
-    df = pd.read_csv(inputPath, sep='\s+', header=None)
-    # print(df)
-    original_size = df.size
-    print("size of file =", df.size)
-    # print(df.shape)
-    # rc = df.shape[0]
-    # cc = df.shape[1]
-    # if rc > cc:
-    #     df = df.transpose()
+    list_of_sets = None
+    te_ary = None
+    start_size = None
     te = TransactionEncoder()
-    te_ary = te.fit(df.values.tolist()).transform(df.values.tolist())
-    dfr = pd.DataFrame(te_ary, columns=te.columns_)
-    gd = fpgrowth(dfr, min_support=minsupport(), use_colnames=True)
-    gd = gd[gd['itemsets'].str.len() > 2]
-    gd["frequency"] = gd["support"] * (gd['itemsets'].str.len())
-    pattern_to_index = {frozenset(itemset): hex(int(Elias_Gamma(index), 2)) for index, itemset in
-                        enumerate(gd['itemsets'])}
-    list_of_sets = [set(row) for _, row in df.iterrows()]
-    sorted_pattern_to_index = dict(sorted(pattern_to_index.items(), key=lambda item: len(item[0]), reverse=True))
-    compressed_lst = []
-    num_cores = multiprocessing.cpu_count()
-    print("number of cores =", num_cores)
-    partial_process = partial(process_transaction, sorted_pattern_to_index=sorted_pattern_to_index)
+    try:
+        df = pd.read_table(inputPath, sep="\s+", header=None)
+        start_size = df.size
+        print("size of data before compression =", start_size)
+        te_ary = te.fit(list(df.values.tolist())).transform(df.values.tolist())
+        list_of_sets = [set(row) for _, row in df.iterrows()]
+        dfr = pd.DataFrame(te_ary, columns=te.columns_)
+        print(dfr)
+        gd = fpgrowth(dfr, min_support=minsupport(), use_colnames=True)
+        print(gd)
+        gd = gd[gd['itemsets'].str.len() >= 2]
+        gd["frequency"] = gd["support"] * (gd['itemsets'].str.len())
+        pattern_to_index = {frozenset(itemset): hex(int(Elias_Gamma(index), 2)) for index, itemset in
+                            enumerate(gd['itemsets'])}
+        sorted_pattern_to_index = dict(sorted(pattern_to_index.items(), key=lambda item: len(item[0]), reverse=True))
+    except:
+        transactions = []
+        with open(inputPath, 'r') as file:
+            for line in file:
+                items = line.strip().split()  # Split the line into items
+                transactions.append(items)
+        start_size = sum([len(listElem) for listElem in transactions])
+        print("size of data before compression =", start_size)
+        te_ary = te.fit(transactions).transform(transactions)
+        list_of_sets = [set(items) for items in transactions]
+        dfr = pd.DataFrame(te_ary, columns=te.columns_)
+        print(dfr)
+        gd = fpgrowth(dfr, min_support=minsupport(), use_colnames=True)
+        print(gd)
+        gd = gd[len(gd['itemsets']) >= 2]
+        gd["frequency"] = gd["support"] * len(gd['itemsets'])
+        pattern_to_index = {frozenset(itemset): hex(int(Elias_Gamma(index), 2)) for index, itemset in
+                            enumerate(gd['itemsets'])}
+        sorted_pattern_to_index = dict(sorted(pattern_to_index.items(), key=lambda item: len(item[0]), reverse=True))
+    finally:
+        num_cores = multiprocessing.cpu_count()
+        print("number of cores =", num_cores)
+        partial_process = partial(process_transaction, sorted_pattern_to_index=sorted_pattern_to_index)
+        # Create a multiprocessing pool
+        pool = multiprocessing.Pool(num_cores)
 
-    # Create a multiprocessing pool
-    pool = multiprocessing.Pool(num_cores)
-
-    # Parallelize the processing of transaction sets
-    compressed_lst = pool.map(partial_process, list_of_sets)
-    pool.close()
-    pool.join()
-    end = time.time()
-    print("Ended at", end)
-    print("time taken to compress =",end-start)
-    cmp_df = pd.DataFrame(compressed_lst)
-    print("size of compressed file =", cmp_df.size)
-    # print(cmp_df.shape)
-    print("compression ratio =", cmp_df.size/original_size)
-    cmp_df.to_csv(outputPath, sep='\t', index=False, header=False)
-    with open('sorted_pattern_to_index.pkl', 'wb') as file:
-        pickle.dump(sorted_pattern_to_index, file)
+        # Parallelize the processing of transaction sets
+        compressed_lst = pool.map(partial_process, list_of_sets)
+        pool.close()
+        pool.join()
+        cmp_df = pd.DataFrame(compressed_lst)
+        end_size = cmp_df.size
+        print("size of data after compression =", end_size)
+        print("compression ratio =", end_size / start_size)
+        cmp_df.to_csv(outputPath, sep='\t', index=False, header=False)
+        with open('sorted_pattern_to_index.pkl', 'wb') as file:
+            pickle.dump(sorted_pattern_to_index, file)
 
 
 def decompress(inputPath, outputPath):
     with open('sorted_pattern_to_index.pkl', 'rb') as file:
         sorted_pattern_to_index = pickle.load(file)
-    cf = pd.read_table(inputPath, sep="\s+", header=None)
+    # cf = pd.read_table(inputPath, sep="\s+",header=None)
+    transactions = []
+    with open(inputPath, 'r') as file:
+        for line in file:
+            items = line.strip().split()  # Split the line into items
+            transactions.append(items)
+
     print(sorted_pattern_to_index)
     decomp_lst = []
     rev_indx = {str(value): key for key, value in sorted_pattern_to_index.items()}
-    list_of_compressed_sets = [set(row) for _, row in cf.iterrows()]
+    list_of_compressed_sets = [set(items) for items in transactions]
+    # list_of_compressed_sets = [set(row) for _, row in cf.iterrows()]
     for comp_set in list_of_compressed_sets:
         decomp_set = set()
         for comp_item in comp_set:
@@ -135,12 +154,18 @@ def decompress_main(input_path, output_path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print("Usage: python ass01.py [C/D] input_filename output_filename")
+        print("Usage: python ass01.py [C/D] input_path output_path")
     elif sys.argv[1] == 'C':
         """
             suggested command format: python ass01.py C datasets/originals/D_small.dat datasets/compressed/com_small.dat
         """
+        print("Compression:")
+        start = time.time()
+        print("started at", start)
         compress_main(sys.argv[2], sys.argv[3])
+        end = time.time()
+        print("Ended at", end)
+        print("time taken to compress =", end - start)
         print('Compression complete')
     elif sys.argv[1] == 'D':
         """
