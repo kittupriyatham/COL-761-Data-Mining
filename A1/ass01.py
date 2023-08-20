@@ -1,3 +1,4 @@
+import math
 import os
 from pathlib import Path
 import pandas as pd
@@ -73,7 +74,8 @@ def compress(inputPath, outputPath):
     if nr < 100000:
         bl = nr
     else:
-        bl = 35000
+        bl = math.ceil(nr/20)
+    print("bl =", bl)
     tcmp = []
     for i in range(0, nr, bl):
         print("in loop", fno, i, i + bl)
@@ -102,7 +104,10 @@ def compress(inputPath, outputPath):
             with open('sorted_pattern_to_index.pkl', 'wb') as file:
                 pickle.dump(sorted_pattern_to_index, file)
         else:
-            with open(('batchpickles/' + Path(outputPath).stem + '/sorted_pattern_to_index' + str(fno) + '.pkl'),
+            path = 'batchpickles/' + Path(outputPath).stem
+            if not os.path.isdir(path):
+                os.mkdir(path)
+            with open((path + '/sorted_pattern_to_index' + str(fno) + '.pkl'),
                       'wb') as file:
                 pickle.dump(sorted_pattern_to_index, file)
         fno += 1
@@ -142,11 +147,12 @@ def decompress(inputPath, outputPath):
                 decomp_lst.append(decomp_set)
             pd.DataFrame(decomp_lst).to_csv(outputPath, sep='\t', index=False, header=False)
     else:
+        path = "./batchpickles/" + Path(inputPath).stem
         files = os.listdir("./batchpickles/" + Path(inputPath).stem)
         fc = len(files)
         final_dcom = []
         for i in range(fc):
-            with open('sorted_pattern_to_index' + str(i) + '.pkl', 'rb') as file:
+            with open(path+'/sorted_pattern_to_index' + str(i) + '.pkl', 'rb') as file:
                 sorted_pattern_to_index = pickle.load(file)
             decomp_lst = []
             rev_indx = {str(value): key for key, value in sorted_pattern_to_index.items()}
