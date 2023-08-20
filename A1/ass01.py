@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import fpgrowth
@@ -71,19 +73,20 @@ def compress(inputPath, outputPath):
     if nr < 100000:
         bl = nr
     else:
-    	bl = nr//50
+        bl = 35000
     tcmp = []
     for i in range(0, nr, bl):
-        print("in loop", fno, i, i+bl)
-        te_ary = te.fit(transactions[i:i+bl]).transform(transactions[i:i+bl])
-        list_of_sets = [set(items) for items in transactions[i:i+bl]]
+        print("in loop", fno, i, i + bl)
+        te_ary = te.fit(transactions[i:i + bl]).transform(transactions[i:i + bl])
+        list_of_sets = [set(items) for items in transactions[i:i + bl]]
         dfr = pd.DataFrame(te_ary, columns=te.columns_)
         # print(dfr)
         gd = fpgrowth(dfr, min_support=minsupport(), use_colnames=True)
         # print(gd)
         gd = gd[gd['itemsets'].str.len() >= 2]
         gd["frequency"] = gd["support"] * (gd['itemsets'].str.len())
-        pattern_to_index = {frozenset(itemset): hex(int(Elias_Gamma(index), 2)) for index, itemset in enumerate(gd['itemsets'])}
+        pattern_to_index = {frozenset(itemset): hex(int(Elias_Gamma(index), 2)) for index, itemset in
+                            enumerate(gd['itemsets'])}
         sorted_pattern_to_index = dict(sorted(pattern_to_index.items(), key=lambda item: len(item[0]), reverse=True))
         num_cores = multiprocessing.cpu_count()
         print("number of cores =", num_cores)
@@ -93,46 +96,77 @@ def compress(inputPath, outputPath):
         compressed_lst = pool.map(partial_process, list_of_sets)
         pool.close()
         pool.join()
+
         tcmp += compressed_lst
-        with open(('batchpickles/sorted_pattern_to_index'+str(fno)+'.pkl'), 'wb') as file:
-            pickle.dump(sorted_pattern_to_index, file)
+        if nr < 100000:
+            with open('sorted_pattern_to_index.pkl', 'wb') as file:
+                pickle.dump(sorted_pattern_to_index, file)
+        else:
+            with open(('batchpickles/' + Path(outputPath).stem + '/sorted_pattern_to_index' + str(fno) + '.pkl'),
+                      'wb') as file:
+                pickle.dump(sorted_pattern_to_index, file)
         fno += 1
     print("loop ended")
     end_size = sum([len(listElem) for listElem in tcmp])
     print("size of data after compression =", end_size)
     print("compression ratio =", ((start_size - end_size) / start_size) * 100)
-    # print(tcmp)
-    # print(" ".join(tcmp[0]))
-    f = open(outputPath, 'a')
+    f = open(outputPath, 'w')
     for i in range(nr):
-        f.write(" ".join(tcmp[i]))
+        f.write(" ".join(tcmp[i]) + "\n")
     f.close()
 
 
 def decompress(inputPath, outputPath):
-    with open('sorted_pattern_to_index.pkl', 'rb') as file:
-        sorted_pattern_to_index = pickle.load(file)
     transactions = []
     with open(inputPath, 'r') as file:
         for line in file:
             items = line.strip().split()  # Split the line into items
             transactions.append(items)
-    print(sorted_pattern_to_index)
-    decomp_lst = []
-    rev_indx = {str(value): key for key, value in sorted_pattern_to_index.items()}
-    list_of_compressed_sets = [set(items) for items in transactions]
-    for comp_set in list_of_compressed_sets:
-        decomp_set = set()
-        for comp_item in comp_set:
-            if comp_item == 'nan':
-                continue
-            elif str(comp_item).startswith("0x"):
-                decomp_set.update(rev_indx.get(str(comp_item), []))
-            else:
-                decomp_set.add(comp_item)
-        decomp_lst.append(decomp_set)
-    pd.DataFrame(decomp_lst).to_csv(outputPath, sep='\t', index=False, header=False)
-
+    nr = len(transactions)
+    print(nr)
+    if nr < 100000:
+        with open('sorted_pattern_to_index.pkl', 'rb') as file:
+            sorted_pattern_to_index = pickle.load(file)
+            decomp_lst = []
+            rev_indx = {str(value): key for key, value in sorted_pattern_to_index.items()}
+            list_of_compressed_sets = [set(items) for items in transactions]
+            for comp_set in list_of_compressed_sets:
+                decomp_set = set()
+                for comp_item in comp_set:
+                    if comp_item == 'nan':
+                        continue
+                    elif str(comp_item).startswith("0x"):
+                        decomp_set.update(rev_indx.get(str(comp_item), []))
+                    else:
+                        decomp_set.add(comp_item)
+                decomp_lst.append(decomp_set)
+            pd.DataFrame(decomp_lst).to_csv(outputPath, sep='\t', index=False, header=False)
+    else:
+        files = os.listdir("./batchpickles/" + Path(inputPath).stem)
+        fc = len(files)
+        final_dcom = []
+        for i in range(fc):
+            with open('sorted_pattern_to_index' + str(i) + '.pkl', 'rb') as file:
+                sorted_pattern_to_index = pickle.load(file)
+            decomp_lst = []
+            rev_indx = {str(value): key for key, value in sorted_pattern_to_index.items()}
+            list_of_compressed_sets = [set(items) for items in transactions]
+            for comp_set in list_of_compressed_sets:
+                decomp_set = set()
+                for comp_item in comp_set:
+                    if comp_item == 'nan':
+                        continue
+                    elif str(comp_item).startswith("0x"):
+                        decomp_set.update(rev_indx.get(str(comp_item), []))
+                    else:
+                        decomp_set.add(comp_item)
+                decomp_lst.append(decomp_set)
+            final_dcom += decomp_lst
+        f = open(outputPath, 'w')
+        for j in range(nr):
+            f.write(" ".join(final_dcom[j]) + "\n")
+        f.close()
+        # pd.DataFrame(decomp_lst).to_csv("./datasets/decompressed/"+Path(outputPath).stem+"", sep='\t', index=False, header=False)
 
 
 def compress_main(input_path, output_path):
