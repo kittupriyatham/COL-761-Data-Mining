@@ -171,7 +171,7 @@ def decompress(inputPath, outputPath):
         for j in range(nr):
             f.write(" ".join(final_dcom[j]) + "\n")
         f.close()
-        # pd.DataFrame(decomp_lst).to_csv("./datasets/decompressed/"+Path(outputPath).stem+"", sep='\t', index=False, header=False)
+        # pd.DataFrame(decomp_lst).to_csv("./decompressed/"+Path(outputPath).stem+"", sep='\t', index=False, header=False)
 
 
 def compress_main(input_path, output_path):
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         print("Usage: python ass01.py [C/D] input_path output_path")
     elif sys.argv[1] == 'C':
         """
-            suggested command format: python ass01.py C datasets/originals/D_small.dat datasets/compressed/com_small.dat
+            suggested command format: python ass01.py C originals/D_small.dat compressed/com_small.dat
         """
         print("Compression:")
         start = time.time()
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         print('Compression complete')
     elif sys.argv[1] == 'D':
         """
-            suggested command format: python ass01.py D datasets/compressed/com_small.dat datasets/decompressed/de_small.dat
+            suggested command format: python ass01.py D compressed/com_small.dat decompressed/de_small.dat
         """
         decompress_main(sys.argv[2], sys.argv[3])
         print('Decompression complete')
