@@ -68,11 +68,13 @@ def compress(inputPath, outputPath):
     print("number of transactions =", nr)
     fno = 0
     bl = 100000
-    if bl > nr:
+    if nr < 100000:
         bl = nr
+    else:
+    	bl = nr//50
     tcmp = []
     for i in range(0, nr, bl):
-        print("in loop")
+        print("in loop", fno, i, i+bl)
         te_ary = te.fit(transactions[i:i+bl]).transform(transactions[i:i+bl])
         list_of_sets = [set(items) for items in transactions[i:i+bl]]
         dfr = pd.DataFrame(te_ary, columns=te.columns_)
@@ -130,6 +132,7 @@ def decompress(inputPath, outputPath):
                 decomp_set.add(comp_item)
         decomp_lst.append(decomp_set)
     pd.DataFrame(decomp_lst).to_csv(outputPath, sep='\t', index=False, header=False)
+
 
 
 def compress_main(input_path, output_path):
