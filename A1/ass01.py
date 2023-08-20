@@ -13,7 +13,6 @@ from typing import Final
 import time
 
 minisupport: Final = 0.6
-# secret = "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"
 
 sorted_pattern_to_index = {}
 
