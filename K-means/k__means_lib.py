@@ -42,6 +42,6 @@ if elbow_point is not None:
 else:
     print("The elbow point could not be determined.")
 
-plt.savefig('K_means'+dimension+'D.png')
+plt.savefig('K_means'+str(dimension)+'D_plot.png')
 plt.show()
 
