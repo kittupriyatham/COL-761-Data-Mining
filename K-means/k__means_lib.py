@@ -32,7 +32,8 @@ for i in range(1, 15):
         break
 
 plt.plot(range(1,16), mean_distances, marker='o')
-plt.title('K vs Mean Distance from Cluster Centers')
+plt.title('K vs Mean Distance from Cluster Centers \nFor the data '+str(sys.argv[1]))
+# plt.title('K vs Mean Distance from Cluster Centers')
 plt.xlabel('Number of clusters (k)')
 plt.ylabel('Mean Distance')
 
