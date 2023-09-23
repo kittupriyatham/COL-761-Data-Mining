@@ -1,18 +1,8 @@
 #!/usr/bin/env python3
-import subprocess
-import os
-import time
-import matplotlib.pyplot as plt
 import numpy as np
-
-
 num_graphs = 0
-
 graphs = []
 labels = []
-
-
-
 def pre_process():
     with open("yeast", 'r') as file:
         lines = file.readlines()
@@ -44,8 +34,6 @@ def pre_process():
         graphs.append(single_graph)
         while current_line<len(lines) and lines[current_line]=='\n':
              current_line += 1
-        
-    
     with open("yeast_processed", "w") as outfile:
         outfile.write(f"# {len(graphs)}\n")
         label_map={}
@@ -64,14 +52,4 @@ def pre_process():
                 node_count+=1
             for edge in graph["edges"]:
                 outfile.write(f"e {edge[0]} {edge[1]} {edge[2]}\n")
-            
-def get_graph():
-    num_graphs=0
-    with open("yeast_processed", 'r') as file:
-         first_line = file.readline()
-         words = first_line.split()
-         if len(words) >= 2:
-            num_graphs = int(words[1])
-    return num_graphs
-
 pre_process()
