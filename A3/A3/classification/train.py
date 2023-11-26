@@ -42,7 +42,6 @@ class GraphClassifier(nn.Module):
             nn.BatchNorm1d(hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
-         #   nn.Dropout(p=dropout_prob),
             nn.Linear(hidden_dim, hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
@@ -83,7 +82,6 @@ class GraphClassifier(nn.Module):
     def forward(self, data):
         x, edge_index, edge_attr = data.x.to(device), data.edge_index.to(device), data.edge_attr.to(device)
 
-      # print(f"node: {x.shape}  edge_index:{edge_index.shape} edge_attr:{edge_attr.shape}")
 
         x_1 = self.gine_layer_1(x, edge_index, edge_attr)
         x_2 = self.gine_layer_2(x_1, edge_index, edge_attr)
@@ -285,8 +283,6 @@ def compare_with_baseline(gnn_model, logreg_model, val_dataset):
 
     gnn_predictions = np.array(gnn_predictions)
     logreg_predictions = np.array(logreg_predictions)
-    #print(f"Gnn_prediction : {gnn_predictions} \n")
-    #print(f"logreg_prediction : {logreg_predictions} \n")
     true_labels = np.array(true_labels)
     selected_indices = np.random.choice(len(val_dataset), size=50, replace=False)
 
