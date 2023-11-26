@@ -1,8 +1,6 @@
 import numpy as np
 import time
 from scipy.spatial.distance import cdist
-# import matplotlib
-# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
