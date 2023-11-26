@@ -347,7 +347,7 @@ def main():
     parser.add_argument("--dataset_path", required=True)
     parser.add_argument("--val_dataset_path", required=True)
     args = parser.parse_args()
-    print(f"Training a classification model. Output will be saved at. Dataset will be loaded from {args.dataset_path}. Validation dataset will be loaded from.")
+    print(f"Training a classification model. Output will be saved at. Dataset will be loaded from {args.dataset_path}. Validation dataset will be loaded from {args.val_dataset_path}. Model will be saved at {args.model_path}")
 
     train_dataset=load_graph_data(args.dataset_path)
     val_dataset=load_graph_data(args.val_dataset_path)
