@@ -9,18 +9,15 @@ def generate_random_points_total(n, m, d):
     return points[:n], points[n:]
 
 
-# Example usage:
-n = 1000000  # Number of points
-m = 100  # Number of query points
-dim = [1, 2, 4, 8, 16, 32, 64]  # Number of dimensions
+n = 1000000 
+m = 100  
+dim = [1, 2, 4, 8, 16, 32, 64]  
 l1, l2, linf = [], [], []
 
 c = 1
 for d in dim:
     start = time.time()
     points, query_points = generate_random_points_total(n, m, d)
-    # print(type(points))
-    # ratios = {1: [], 2: [], np.inf: []}
     distances_l1 = cdist(query_points, points, metric='minkowski')
     farthest_distances_l1 = np.max(distances_l1, axis=1)
     distances_l1_copy = np.copy(distances_l1)
@@ -53,7 +50,6 @@ log_l1 = np.log10(l1)
 log_l2 = np.log10(l2)
 log_linf = np.log10(linf)
 
-# Plot for l1
 plt.figure(figsize=(6, 5))
 plt.plot(dim, l1, label='L1', linewidth=0.8)
 plt.plot(dim, l2, label='L2', linewidth=0.8)
@@ -65,7 +61,6 @@ plt.legend()
 plt.savefig('./plots/Ratio_1.png')
 plt.close()
 
-# Plot for l2
 plt.figure(figsize=(8, 6))
 plt.plot(x_axis, l1, label='L1', linewidth=0.8)
 plt.plot(x_axis, l2, label='L2', linewidth=0.8)
@@ -77,7 +72,6 @@ plt.legend()
 plt.savefig('./plots/Ratio_2.png')
 plt.close()
 
-# Plot for l1
 plt.figure(figsize=(6, 4))
 plt.plot(dim, l1, label='L1')
 plt.xlabel('Points dimension')
@@ -87,7 +81,6 @@ plt.legend()
 plt.savefig('./plots/plot_l1.png')
 plt.close()
 
-# Plot for l2
 plt.figure(figsize=(6, 5))
 plt.plot(dim, l2, label='L2')
 plt.xlabel('Points dimension')
@@ -97,7 +90,6 @@ plt.legend()
 plt.savefig('./plots/plot_l2.png')
 plt.close()
 
-# Plot for linf
 plt.figure(figsize=(6, 5))
 plt.plot(dim, linf, label='L∞')
 plt.xlabel('Points dimension')
@@ -107,7 +99,6 @@ plt.legend()
 plt.savefig('./plots/plot_linf.png')
 plt.close()
 
-# Plot for l1
 plt.figure(figsize=(7, 5))
 plt.plot(x_axis, l1, label='L1')
 plt.xlabel('Log(Points dimension)')
@@ -117,7 +108,6 @@ plt.legend()
 plt.savefig('./plots/plot_l1_log.png')
 plt.close()
 
-# Plot for l2
 plt.figure(figsize=(7, 5))
 plt.plot(x_axis, l2, label='L2')
 plt.xlabel('Log(Points dimension)')
@@ -127,7 +117,6 @@ plt.legend()
 plt.savefig('./plots/plot_l2_log.png')
 plt.close()
 
-# Plot for linf
 plt.figure(figsize=(7, 5))
 plt.plot(x_axis, linf, label='L∞')
 plt.xlabel('Log(Points dimension)')
@@ -142,9 +131,7 @@ l1 = [round(x, 5) for x in l1]
 l2 = [round(x, 5) for x in l2]
 linf = [round(x, 5) for x in linf]
 
-# Print table header
 print(f"{'Dimension':<15}{'L1':<15}{'L2':<15}{'L∞':<15}")
 
-# Print table rows
 for i in range(len(dim)):
     print(f"{dim[i]:<15}{l1[i]:<15}{l2[i]:<15}{linf[i]:<15}")
