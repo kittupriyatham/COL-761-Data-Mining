@@ -64,7 +64,7 @@ plt.xlabel('Points dimension')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio ')
 plt.legend()
-plt.savefig('./Q1/plots/Ratio_1.png')
+plt.savefig('./plots/Ratio_1.png')
 plt.close()
 
 # Plot for l2
@@ -76,7 +76,7 @@ plt.xlabel('Points dimension')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio')
 plt.legend()
-plt.savefig('./Q1/plots/Ratio_2.png')
+plt.savefig('./plots/Ratio_2.png')
 plt.close()
 
 # Plot for l1
@@ -86,7 +86,7 @@ plt.xlabel('Points dimension')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio (L1)')
 plt.legend()
-plt.savefig('./Q1/plots/plot_l1.png')
+plt.savefig('./plots/plot_l1.png')
 plt.close()
 
 # Plot for l2
@@ -96,7 +96,7 @@ plt.xlabel('Points dimension')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio (L2)')
 plt.legend()
-plt.savefig('./Q1/plots/plot_l2.png')
+plt.savefig('./plots/plot_l2.png')
 plt.close()
 
 # Plot for linf
@@ -106,7 +106,7 @@ plt.xlabel('Points dimension')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio (L∞)')
 plt.legend()
-plt.savefig('./Q1/plots/plot_linf.png')
+plt.savefig('./plots/plot_linf.png')
 plt.close()
 
 # Plot for l1
@@ -116,7 +116,7 @@ plt.xlabel('Log(Points dimension)')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio (L1)')
 plt.legend()
-plt.savefig('./Q1/plots/plot_l1_log.png')
+plt.savefig('./plots/plot_l1_log.png')
 plt.close()
 
 # Plot for l2
@@ -126,7 +126,7 @@ plt.xlabel('Log(Points dimension)')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio (L2)')
 plt.legend()
-plt.savefig('./Q1/plots/plot_l2_log.png')
+plt.savefig('./plots/plot_l2_log.png')
 plt.close()
 
 # Plot for linf
@@ -136,7 +136,7 @@ plt.xlabel('Log(Points dimension)')
 plt.ylabel('Average ratio of Distances')
 plt.title('Average distances\' ratio (L∞)')
 plt.legend()
-plt.savefig('./Q1/plots/plot_linf_log.png')
+plt.savefig('./plots/plot_linf_log.png')
 plt.close()
 
 dim = [round(x, 5) for x in dim]
