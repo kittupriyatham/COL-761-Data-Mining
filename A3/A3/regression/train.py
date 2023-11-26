@@ -44,7 +44,6 @@ class GraphClassifier(nn.Module):
             nn.BatchNorm1d(hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
-         #   nn.Dropout(p=dropout_prob),
             nn.Linear(hidden_dim, hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
@@ -55,7 +54,6 @@ class GraphClassifier(nn.Module):
             nn.BatchNorm1d(hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
-         #   nn.Dropout(p=dropout_prob),
             nn.Linear(hidden_dim, hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
@@ -83,9 +81,7 @@ class GraphClassifier(nn.Module):
                 nn.init.xavier_uniform_(m.weight)
 
     def forward(self, data):
-        x, edge_index, edge_attr = data.x.to(device), data.edge_index.to(device), data.edge_attr.to(device)
-
-      # print(f"node: {x.shape}  edge_index:{edge_index.shape} edge_attr:{edge_attr.shape}")
+        x, edge_index, edge_attr = data.x.to(device), data.edge_index.to(device), data.edge_attr.to(devic
 
         x_1 = self.gine_layer_1(x, edge_index, edge_attr)
         x_2 = self.gine_layer_2(x_1, edge_index, edge_attr)
@@ -175,9 +171,6 @@ def load_graph_data(source):
     node_features = np.array(node_features)
     edge_features = np.array(edge_features)
 
-   # node_features_normalized = MinMaxScaler().fit_transform(node_features)
-
-   # edge_features_normalized = MinMaxScaler().fit_transform(edge_features)
 
     node_features_normalized = PowerTransformer().fit_transform(node_features)
 
@@ -224,7 +217,6 @@ def load_graph_data(source):
             data_list.append(data)
         node_start+=graph_num_nodes
         edge_start+=graph_num_edges
-    #print(f"labels {graph_labels}")
 
     dataset = GraphDataset(data_list)
     return dataset
@@ -287,7 +279,6 @@ def compare_with_baseline(gnn_model, linear_reg_model, val_dataset):
     plt.legend()
     plt.savefig('Q2_baseline_regression.png')
     
-    # Mean Squared Error calculation
     gnn_mse = mean_squared_error(true_labels, gnn_predictions)
     linear_reg_mse = mean_squared_error(true_labels, linear_reg_predictions)
 
