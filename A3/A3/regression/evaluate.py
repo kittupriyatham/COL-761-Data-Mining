@@ -51,7 +51,6 @@ class GraphClassifier(nn.Module):
             nn.BatchNorm1d(hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
-         #   nn.Dropout(p=dropout_prob),
             nn.Linear(hidden_dim, hidden_dim),
             nn.LeakyReLU(0.2, inplace=True),
 
@@ -81,7 +80,6 @@ class GraphClassifier(nn.Module):
     def forward(self, data):
         x, edge_index, edge_attr = data.x.to(device), data.edge_index.to(device), data.edge_attr.to(device)
 
-      # print(f"node: {x.shape}  edge_index:{edge_index.shape} edge_attr:{edge_attr.shape}")
 
         x_1 = self.gine_layer_1(x, edge_index, edge_attr)
         x_2 = self.gine_layer_2(x_1, edge_index, edge_attr)
@@ -103,7 +101,6 @@ def test(model, test_loader):
             batch = batch.to(device)
             outpt = model(batch)
             output = outpt[0][0]
-            #ys_this_batch = output.cpu().numpy().tolist()
             all_ys.append(output)
     numpy_ys = np.asarray(all_ys)
     tocsv(numpy_ys, task="regression")
