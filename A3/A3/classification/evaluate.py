@@ -123,7 +123,7 @@ def main():
     parser.add_argument("--model_path", required=True)
     parser.add_argument("--dataset_path", required=True)
     args = parser.parse_args()
-    print(f"Evaluating the classification model.Test dataset will be loaded from {args.dataset_path}.")
+    print(f"Evaluating the classification model.Test dataset will be loaded from {args.dataset_path} , model will be loaded from {args.model_path}")
     GINE_model = torch.load(f'{args.model_path}GINE_Classification_model.pth')
     node_features = pd.read_csv(f'{args.dataset_path}node_features.csv.gz', header=None).values.tolist()
     num_nodes = pd.read_csv( f'{args.dataset_path}num_nodes.csv.gz', header=None).values.tolist()
